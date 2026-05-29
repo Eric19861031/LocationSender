@@ -38,15 +38,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.tvChannelId.text = "通信频道: ${LocationService.MQTT_TOPIC}"
-
-        binding.btnToggleService.setOnClickListener {
-            if (LocationService.isRunning) {
-                stopLocationService()
-            } else {
-                checkAndRequestPermissions()
-            }
-        }
+            binding.tvChannelId.text = "频道: fixed_channel_A7B3C9D2E1F5"
+        checkAndRequestPermissions()
     }
 
     override fun onResume() {
@@ -93,6 +86,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLocationService() {
+        if (LocationService.isRunning) return
         val intent = Intent(this, LocationService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
@@ -100,30 +94,17 @@ class MainActivity : AppCompatActivity() {
             startService(intent)
         }
         updateUI()
-        Toast.makeText(this, "位置发送服务已启动", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun stopLocationService() {
-        stopService(Intent(this, LocationService::class.java))
-        updateUI()
-        Toast.makeText(this, "位置发送服务已停止", Toast.LENGTH_SHORT).show()
     }
 
     private fun updateUI() {
         if (LocationService.isRunning) {
-            binding.btnToggleService.text = "停止发送"
-            binding.btnToggleService.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(0xFFE53935.toInt())
-            binding.tvStatus.text = "● 运行中"
+            binding.tvStatus.text = "● 待命中"
             binding.tvStatus.setTextColor(0xFF4CAF50.toInt())
-            binding.tvLocation.text = "正在发送位置数据..."
+            binding.tvLocation.text = "等待接收器发起请求..."
         } else {
-            binding.btnToggleService.text = "开始发送位置"
-            binding.btnToggleService.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(0xFF4CAF50.toInt())
-            binding.tvStatus.text = "● 已停止"
-            binding.tvStatus.setTextColor(0xFFE53935.toInt())
-            binding.tvLocation.text = "等待启动..."
+            binding.tvStatus.text = "● 初始化中"
+            binding.tvStatus.setTextColor(0xFFFFC107.toInt())
+            binding.tvLocation.text = "服务启动中，请稍候..."
         }
     }
 }
